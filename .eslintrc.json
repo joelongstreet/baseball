@@ -2,11 +2,14 @@
     "extends": "airbnb-base",
     "rules": {
         "no-console": "off",
-        "function-paren-newline": "off",
-        "comma-dangle": "off"
+        "function-paren-newline": "off"
     },
     "env": {
         "browser": true,
         "node": true
+    },
+    "globals": {
+        "SVG": false,
+        "_": false
     }
 }

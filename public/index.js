@@ -1,23 +1,32 @@
-const CANVAS_W = 384;
-const CANVAS_H = 790;
-const MARGIN = 19.05;
-const PADDING = 5;
-const HOLE_R = 3.25; // 3.175 * 2 = 6.35mm (quarter inch, little extra for wiggle room)
-const MIN_R = 13;
-const MAX_R = 45;
-
-const SHAPE_SETTINGS = {
-  stroke: '#0000ff',
-  fill: 'none',
-  'stroke-width': '.1mm',
+const SETTINGS = {
+  CANVAS_W: 384,
+  CANVAS_H: 790,
+  MARGIN: 19.05,
+  PADDING: 5,
+  HOLE_R: 3.25, // 3.175 * 2 = 6.35mm (quarter inch, little extra for wiggle room)
+  MIN_R: 13,
+  MAX_R: 45,
+  SHAPE: {
+    stroke: '#0000ff',
+    fill: 'none',
+    'stroke-width': '.1mm',
+  },
+  FONT: {
+    family: 'Roboto Condensed',
+    size: 13,
+    anchor: 'middle',
+    fill: '#000000',
+  },
 };
 
-const FONT_SETTINGS = {
-  family: 'Roboto Condensed',
-  size: 13,
-  anchor: 'middle',
-  fill: '#000000',
-};
+
+function clamp(input, inMin, inMax, outMin, outMax) {
+  return (
+    (
+      (input - inMin) * (outMax - outMin)
+    ) / (inMax - inMin)
+  ) + outMin;
+}
 
 
 function query(sqlStatement) {
@@ -45,15 +54,13 @@ function normalize(collection) {
   const minSets = {};
 
   Object.keys(sample)
-    .filter((key) => {
-      return !excludeKeys.includes(key);
-    })
+    .filter(key => !excludeKeys.includes(key))
     .forEach((key) => {
       maxSets[key] = Math.max(
-        ...Array.from(collection, c => c[key])
+        ...Array.from(collection, c => c[key]),
       );
       minSets[key] = Math.min(
-        ...Array.from(collection, c => c[key])
+        ...Array.from(collection, c => c[key]),
       );
     });
 
@@ -64,7 +71,7 @@ function normalize(collection) {
       .forEach((key) => {
         if (!excludeKeys.includes(key)) {
           newItem[key] = clamp(
-            item[key], minSets[key], maxSets[key], 0, 1
+            item[key], minSets[key], maxSets[key], 0, 1,
           );
         } else {
           newItem[key] = item[key];
@@ -80,17 +87,17 @@ function normalize(collection) {
 
 function drawDonut(canvas, item, shapes) {
   const r = _.round(
-    clamp(item.x1, 0, 1, MIN_R, MAX_R)
-  , 2);
+    clamp(item.x1, 0, 1, SETTINGS.MIN_R, SETTINGS.MAX_R)
+    , 2);
 
-  let xFormula = [MARGIN, r];
-  let yFormula = [MARGIN, r];
+  let xFormula = [SETTINGS.MARGIN, r];
+  let yFormula = [SETTINGS.MARGIN, r];
   let startedNewRow = false;
 
-  let last = _.last(_.last(shapes));
+  const last = _.last(_.last(shapes));
   if (last) {
-    const trial = [last.x, last.r, r, PADDING];
-    const threshold = CANVAS_W - MARGIN - r;
+    const trial = [last.x, last.r, r, SETTINGS.PADDING];
+    const threshold = SETTINGS.CANVAS_W - SETTINGS.MARGIN - r;
     if (_.sum(trial) < threshold) {
       xFormula = trial;
     } else {
@@ -99,41 +106,42 @@ function drawDonut(canvas, item, shapes) {
   }
 
   const penult = startedNewRow ? _.last(shapes) : shapes[shapes.length - 2];
-  if(penult) {
-    const maxY = Math.max.apply(
-      Math,
-      penult.map(shape => shape.r + shape.y)
+  if (penult) {
+    const maxY = Math.max(
+      ...penult.map(shape => shape.r + shape.y),
     );
-    yFormula = [maxY, PADDING, r];
+    yFormula = [maxY, SETTINGS.PADDING, r];
   }
 
   const x = _.sum(xFormula);
   const y = _.sum(yFormula);
 
-  canvas.circle(`${r*2}mm`)
-    .attr(SHAPE_SETTINGS)
+  canvas.circle(`${r * 2}mm`)
+    .attr(SETTINGS.SHAPE)
     .cx(`${x}mm`)
     .cy(`${y}mm`);
 
-  canvas.circle(`${HOLE_R*2}mm`)
-    .attr(SHAPE_SETTINGS)
+  canvas.circle(`${SETTINGS.HOLE_R * 2}mm`)
+    .attr(SETTINGS.SHAPE)
     .cx(`${x}mm`)
     .cy(`${y}mm`);
 
   canvas.text(String(item.y))
-    .font(FONT_SETTINGS)
-    .move(`${x}mm`, `${y + r - 8}mm`);
+    .font(SETTINGS.FONT)
+    .move(`${x}mm`, `${(y + r) - 8}mm`);
 
-  return {x, y, r, startedNewRow};
+  return {
+    x, y, r, startedNewRow,
+  };
 }
 
 
 function draw(collection) {
-  const canvas = SVG('canvas').size(`${CANVAS_W}mm`, `${CANVAS_H}mm`);
+  const canvas = SVG('canvas').size(`${SETTINGS.CANVAS_W}mm`, `${SETTINGS.CANVAS_H}mm`);
 
-  let grid = [[]];
+  const grid = [[]];
   collection.forEach((item) => {
-    let shape = drawDonut(canvas, item, grid);
+    const shape = drawDonut(canvas, item, grid);
     if (shape.startedNewRow) {
       grid.push([shape]);
     } else {
@@ -142,16 +150,7 @@ function draw(collection) {
   });
 }
 
-function clamp(input, inMin, inMax, outMin, outMax) {
-  return (input - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-}
-
-const sampleQuery = `SELECT yearID as y, (SUM(SB) / SUM(G)) AS x1 FROM lahman2016.Teams WHERE teamID = 'KCA' GROUP BY yearID;`;
+const sampleQuery = "SELECT yearID as y, (SUM(SB) / SUM(G)) AS x1 FROM lahman2016.Teams WHERE teamID = 'KCA' GROUP BY yearID;";
 query(sampleQuery)
   .then(normalize)
   .then(draw);
-
-// TODO:
-// Incoporate more than one stat to make shapes
-// move to a sql lite db on the client?
-// Have a linegraph to preview
