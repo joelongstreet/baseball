@@ -1,7 +1,8 @@
 import settings from './settings.js';
 import * as util from './util.js';
+import { circle } from './svgElement.js';
 
-function donut(canvas, item, shapes) {
+function donut(item, shapes) {
   const r = _.round(
     util.clamp(item.x1, 0, 1, settings.minRadius, settings.maxRadius)
     , 2);
@@ -32,22 +33,13 @@ function donut(canvas, item, shapes) {
   const x = _.sum(xFormula);
   const y = _.sum(yFormula);
 
-  canvas.circle(`${r * 2}mm`)
-    .attr(settings.shape)
-    .cx(`${x}mm`)
-    .cy(`${y}mm`);
-
-  canvas.circle(`${settings.holeRadius * 2}mm`)
-    .attr(settings.shape)
-    .cx(`${x}mm`)
-    .cy(`${y}mm`);
-
-  canvas.text(String(item.y))
-    .font(settings.font)
-    .move(`${x}mm`, `${(y + r) - 8}mm`);
+  const domElement = [
+    circle(r, x, y),
+    circle(settings.holeRadius, x, y),
+  ].join('');
 
   return {
-    x, y, r, startedNewRow,
+    x, y, r, startedNewRow, domElement,
   };
 }
 

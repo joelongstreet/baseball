@@ -53,9 +53,9 @@ export default function query(sqlStatement, dontNormalizeKeys = []) {
       }),
     },
   ).then((response) => {
-    response.json()
+    return response.json()
       .then((ds) => {
-        normalize(ds, dontNormalizeKeys);
+        return normalize(ds, dontNormalizeKeys);
       });
   });
 }

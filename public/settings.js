@@ -9,7 +9,7 @@ export default {
   shape: {
     stroke: '#0000ff',
     fill: 'none',
-    'stroke-width': '.5mm',
+    strokeWidth: '.5mm',
   },
   font: {
     family: 'Roboto Condensed',
