@@ -12,9 +12,8 @@ export default {
     strokeWidth: '.5mm',
   },
   font: {
-    family: 'Roboto Condensed',
+    filePath: './RobotoCondensed-Regular.ttf',
     size: 13,
-    anchor: 'middle',
     fill: '#000000',
   },
 };

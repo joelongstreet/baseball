@@ -1,6 +1,6 @@
 import settings from './settings.js';
 import * as util from './util.js';
-import { circle } from './svgElement.js';
+import { circle, text } from './svgElement.js';
 
 function donut(item, shapes) {
   const r = _.round(
@@ -36,6 +36,11 @@ function donut(item, shapes) {
   const domElement = [
     circle(r, x, y),
     circle(settings.holeRadius, x, y),
+    text(
+      String(item.y),
+      x - 3.3,
+      ((y + r) - 8),
+    ),
   ].join('');
 
   return {
