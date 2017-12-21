@@ -44,7 +44,7 @@ function getPosition(r, item, shapes) {
 
 function donut(item, shapes) {
   const r = _.round(
-    util.clamp(item.x1, 0, 1, settings.minRadius, settings.maxRadius)
+    util.clamp(item.x0, 0, 1, settings.minRadius, settings.maxRadius)
     , 2);
 
   const { coords, startedNewRow } = getPosition(r, item, shapes);
@@ -68,16 +68,16 @@ function donut(item, shapes) {
 
 
 function triDonut(item, shapes) {
-  const max = _.max([item.x1, item.x2, item.x3]);
+  const max = _.max([item.x0, item.x1, item.x2]);
   const r = _.round(
     util.clamp(max, 0, 1, settings.minRadius, settings.maxRadius)
     , 2);
 
   const { coords, startedNewRow } = getPosition(r, item, shapes);
   const points = [
-    { x: 0, y: -1 * polyClamp(item.x1) },
-    { x: polyClamp(item.x2), y: polyClamp(item.x2) * 0.667 },
-    { x: -1 * polyClamp(item.x3), y: polyClamp(item.x3) * 0.667 },
+    { x: 0, y: -1 * polyClamp(item.x0) },
+    { x: polyClamp(item.x1), y: polyClamp(item.x1) * 0.667 },
+    { x: -1 * polyClamp(item.x2), y: polyClamp(item.x2) * 0.667 },
   ];
 
   const domElement = [
@@ -99,17 +99,17 @@ function triDonut(item, shapes) {
 
 
 function quadraDonut(item, shapes) {
-  const max = _.max([item.x1, item.x2, item.x3, item.x4]);
+  const max = _.max([item.x0, item.x1, item.x2, item.x3]);
   const r = _.round(
     util.clamp(max, 0, 1, settings.minRadius, settings.maxRadius)
     , 2);
 
   const { coords, startedNewRow } = getPosition(r, item, shapes);
   const points = [
-    { x: 0, y: polyClamp(item.x1) },
-    { x: polyClamp(item.x2), y: 0 },
-    { x: 0, y: -1 * polyClamp(item.x3) },
-    { x: -1 * polyClamp(item.x4), y: 0 },
+    { x: 0, y: polyClamp(item.x0) },
+    { x: polyClamp(item.x1), y: 0 },
+    { x: 0, y: -1 * polyClamp(item.x2) },
+    { x: -1 * polyClamp(item.x3), y: 0 },
   ];
 
   const domElement = [

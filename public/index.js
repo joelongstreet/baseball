@@ -1,21 +1,15 @@
 import settings from './settings.js';
-import service from './service.js';
+import * as service from './service.js';
 import { donut, triDonut, quadraDonut } from './shape.js';
 
 
 function getShapeFunction(collection) {
-  const shapeMap = {
-    1: donut,
-    2: donut,
-    3: triDonut,
-    4: quadraDonut,
-  };
+  const sample = _.head(collection);
 
-  const vertexCount = Object.keys(
-    _.head(collection),
-  ).length - 1;
+  if (sample.x3) return quadraDonut;
+  if (sample.x2) return triDonut;
 
-  return shapeMap[vertexCount] || shapeMap[1];
+  return donut;
 }
 
 function draw(collection) {
@@ -39,18 +33,15 @@ function draw(collection) {
   document.getElementById('canvas').innerHTML = svg;
 }
 
-// const query = "SELECT yearID as y, (SUM(SB) / SUM(G)) AS x1 FROM lahman2016.Teams WHERE teamID = 'KCA' GROUP BY yearID;"; // donut
-// const query = "SELECT yearID as y, (SUM(SB) / SUM(G)) AS x1 FROM lahman2016.Teams WHERE teamID = 'KCA' GROUP BY yearID;"; // triDonut
-const query = `
-  SELECT
-    yearID as y,
-    ((SUM(H) - SUM(2B) - SUM(3B)) / SUM(G)) AS x1,
-    (SUM(2B) / SUM(G)) AS x2,
-    (SUM(3B) / SUM(G)) AS x3, 
-    (SUM(HR) / SUM(G)) AS x4
-  FROM lahman2016.Teams
-    WHERE teamID = 'KCA'
-  GROUP BY yearID;`; // quadraDonut
 
-service(query, ['y'])
-  .then(draw);
+function q() {
+  const query = {
+    franchId: 'KCR',
+    stats: ['hr', 'h', 'sb', 'era'],
+  };
+
+  service.queryStats(query)
+    .then(draw);
+}
+
+setTimeout(q, 500);
