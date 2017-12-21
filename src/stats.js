@@ -1,5 +1,5 @@
 /* eslint-disable */
-const statMap = [
+export default [
   {
     "franchId": "ATL",
     "w": 0.5571,
@@ -75285,5 +75285,3 @@ const statMap = [
     "sho": 0.0741
   }
 ];
-
-export default statMap;

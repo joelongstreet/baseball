@@ -129,4 +129,13 @@ function quadraDonut(item, shapes) {
   };
 }
 
-export { donut, triDonut, quadraDonut };
+
+function getShapeFunction(sample) {
+  if (sample.x3) return quadraDonut;
+  if (sample.x2) return triDonut;
+
+  return donut;
+}
+
+
+export { getShapeFunction };
